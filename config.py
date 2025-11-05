@@ -8,11 +8,15 @@ DEFAULT_INTERVAL = 0.1
 
 executable = getattr(sys, 'frozen', False) == True
 base_folder_name = "SreenBrightnessControl"
-
+show_more_logs = False
+exe_path = sys.executable
 if executable:
     settings_dir = pathlib.Path(f"C:/ProgramData/{base_folder_name}")
+    task_start_command = [exe_path, "--background"]
 else:
+    script_path = os.path.join(os.path.dirname(__file__), "main.py")
     settings_dir = pathlib.Path(f"C:/ProgramData/dev/{base_folder_name}")
+    task_start_command = [exe_path, script_path, "--background"]
 
 settings_dir.mkdir(parents=True, exist_ok=True)
 logfile  = settings_dir.joinpath("app.log")

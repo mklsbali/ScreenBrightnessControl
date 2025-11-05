@@ -1,5 +1,5 @@
 import tkinter as tk
-from config import *
+from config import PID_FILE, task_start_command
 import psutil
 import os
 import subprocess   
@@ -7,6 +7,7 @@ import signal
 import time 
 import sys
 import logging
+import pythoncom
 
 def is_worker_running():
     """Check if the brightness worker is running."""
@@ -25,7 +26,8 @@ def start_fade():
         logging.info("Brightness fader is already running.")
         return
         # Launch detached process
-    subprocess.Popen([sys.executable, "--background"], creationflags=subprocess.DETACHED_PROCESS if os.name == "nt" else 0)
+    pythoncom.CoInitialize()  # Initialize COM for this thread
+    subprocess.Popen(task_start_command, creationflags=subprocess.CREATE_NO_WINDOW)
     logging.info("Brightness fader started.")
 
 def stop_fade():
@@ -35,6 +37,7 @@ def stop_fade():
         return
 
     try:
+        pythoncom.CoUninitialize()
         pid = int(open(PID_FILE).read())
         logging.info(f"Stopping brightness fader (PID {pid})...")
         os.kill(pid, signal.SIGTERM)

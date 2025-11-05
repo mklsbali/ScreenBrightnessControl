@@ -20,6 +20,10 @@ def setup_logging(logfile=config.logfile):
     log_handler.setFormatter(log_format)
     root_logger.addHandler(log_handler)
     root_logger.setLevel(logging.DEBUG) 
+    # if not config.show_more_logs:
+    logging.getLogger("screen_brightness_control").setLevel(logging.ERROR)
+    logging.getLogger("wmi").setLevel(logging.ERROR)
+
 
 
 if __name__ == "__main__":
