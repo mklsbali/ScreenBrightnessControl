@@ -1,5 +1,4 @@
 import tkinter as tk
-import brightness_adjuster
 from config import *
 import psutil
 import os
@@ -7,6 +6,7 @@ import subprocess
 import signal
 import time 
 import sys
+import logging
 
 def is_worker_running():
     """Check if the brightness worker is running."""
@@ -22,21 +22,21 @@ def is_worker_running():
        
 def start_fade():
     if is_worker_running():
-        print("Brightness fader is already running.")
+        logging.info("Brightness fader is already running.")
         return
         # Launch detached process
     subprocess.Popen([sys.executable, "--background"], creationflags=subprocess.DETACHED_PROCESS if os.name == "nt" else 0)
-    print("Brightness fader started.")
+    logging.info("Brightness fader started.")
 
 def stop_fade():
     """Stop the brightness fading background process."""
     if not os.path.exists(PID_FILE):
-        print("No running brightness fader found.")
+        logging.info("No running brightness fader found.")
         return
 
     try:
         pid = int(open(PID_FILE).read())
-        print(f"Stopping brightness fader (PID {pid})...")
+        logging.info(f"Stopping brightness fader (PID {pid})...")
         os.kill(pid, signal.SIGTERM)
 
         # Wait for it to exit gracefully
@@ -45,11 +45,11 @@ def stop_fade():
                 break
             time.sleep(0.5)
     except Exception as e:
-        print("Error stopping fader:", e)
+        logging.info("Error stopping fader:", e)
     finally:
         if os.path.exists(PID_FILE):
             os.remove(PID_FILE)
-        print("Brightness fader stopped.")
+        logging.info("Brightness fader stopped.")
 
 
 class ScreenBrightnessControlGUI(tk.Tk):
@@ -69,10 +69,10 @@ class ScreenBrightnessControlGUI(tk.Tk):
         self._main_frame.pack(padx=10, pady=10)
 
         # Start background task button
-        self.start_task_button = tk.Button(self._main_frame, text="Start task", command=self._start_task, font=self.buttons_font, width=12, state="normal" if not is_worker_running() else "disabled")
+        self.start_task_button = tk.Button(self._main_frame, text="Start task", command=self._start_task, font=self.buttons_font, width=20, state="normal" if not is_worker_running() else "disabled")
         self.start_task_button.grid(row=0, column=0, pady=(5, 0), padx=(0, 5), sticky="w")
         # Stop background task button
-        self.stop_task_button = tk.Button(self._main_frame, text="Stop task", command=self._stop_task, font=self.buttons_font, width=12, state="normal" if is_worker_running() else "disabled")
+        self.stop_task_button = tk.Button(self._main_frame, text="Stop task", command=self._stop_task, font=self.buttons_font, width=20, state="normal" if is_worker_running() else "disabled")
         self.stop_task_button.grid(row=0, column=1, pady=(5, 0), padx=(0, 5), sticky="w")
         # self.sbc = brightness_adjuster.BrightnessAdjuster()
 
