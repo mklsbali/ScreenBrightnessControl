@@ -1,10 +1,9 @@
 import gui
-
-
-def main():
-    app = gui.ScreenBrightnessControlGUI()
-    app.mainloop()
-
+import sys
+import brightness_worker
 
 if __name__ == "__main__":
-    main()
+    if "--background" in sys.argv:
+        brightness_worker.main()
+    else:
+        gui.main()
